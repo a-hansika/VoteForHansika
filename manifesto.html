@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦕 Hansika's Achievement Quest - Dino Jump! 🦕</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 50%, #a29bfe 100%);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: #ffffff;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 3px solid #74b9ff;
+        }
+        
+        .instructions {
+            background: linear-gradient(45deg, #fdcb6e, #e84393);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        
+        .goals-preview {
+            background: rgba(116, 185, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #74b9ff;
+        }
+        
+        .goal-item {
+            display: inline-block;
+            background: white;
+            margin: 5px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2d3436;
+            border: 2px solid #fdcb6e;
+        }
+        
+        #gameArea {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(to bottom, #74b9ff 0%, #00b894 100%);
+            border: 3px solid #2d3436;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        #dino {
+            position: absolute;
+            bottom: 20px;
+            left: 50px;
+            width: 50px;
+            height: 50px;
+            font-size: 40px;
+            transition: bottom 0.3s ease;
+            z-index: 10;
+        }
+        
+        .obstacle {
+            position: absolute;
+            bottom: 20px;
+            width: 30px;
+            height: 50px;
+            font-size: 35px;
+            z-index: 5;
+        }
+        
+        .coin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            font-size: 25px;
+            z-index: 8;
+            animation: coinFloat 2s ease-in-out infinite;
+        }
+        
+        @keyframes coinFloat {
+            0%, 100% { transform: translateY(0) rotateY(0deg); }
+            50% { transform: translateY(-10px) rotateY(180deg); }
+        }
+        
+        .moving-element {
+            animation: moveElement 4s linear infinite;
+        }
+        
+        @keyframes moveElement {
+            from { right: -50px; }
+            to { right: 100%; }
+        }
+        
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background: #00b894;
+            border-top: 2px solid #2d3436;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background: rgba(116, 185, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 5px;
+            font-weight: 600;
+            color: #2d3436;
+            border: 2px solid #74b9ff;
+        }
+        
+        .achievements-list {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .achievement-item.collected {
+            background: rgba(0, 184, 148, 0.2);
+            border: 2px solid #00b894;
+        }
+        
+        .achievement-item.pending {
+            background: rgba(253, 203, 110, 0.2);
+            border: 2px solid #fdcb6e;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(116, 185, 255, 0.3);
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(116, 185, 255, 0.4);
+        }
+        
+        .vote-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #e84393, #fd79a8);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+            animation: popupBounce 0.5s ease-out;
+        }
+        
+        @keyframes popupBounce {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            80% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .vote-form {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 2px solid #74b9ff;
+        }
+        
+        .form-group {
+            margin: 20px 0;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #74b9ff;
+            border-radius: 15px;
+            font-size: 1rem;
+            background: rgba(116, 185, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #0984e3;
+            box-shadow: 0 0 10px rgba(116, 185, 255, 0.5);
+        }
+        
+        .thank-you {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            border-radius: 20px;
+            padding: 40px;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .jump-instruction {
+            background: rgba(253, 203, 110, 0.2);
+            border: 2px dashed #fdcb6e;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            font-weight: 600;
+            color: #2d3436;
+        }
+        
+        .coin-collected {
+            animation: coinCollected 0.5s ease-out;
+        }
+        
+        @keyframes coinCollected {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen">
+            <h1 class="title">🦕 Hansika's Achievement Quest! 🦕</h1>
+            <div class="game-container">
+                <div class="instructions">
+                    🎮 *Collect achievement coins to unlock voting!* 🪙<br>
+                    🌵 *Jump over obstacles to survive!* <br>
+                    🚀 *Press SPACEBAR or click to jump!* 
+                </div>
+                
+                <div class="goals-preview">
+                    <h3 style="color: #2d3436; margin-bottom: 15px;">🎯 Collect These Achievement Coins:</h3>
+                    <div class="goal-item">🗣️ Monthly Vcharcha's</div>
+                    <div class="goal-item">🎯 Active Participation</div>
+                    <div class="goal-item">💡 Tackling Deepa Mam</div>
+                    <div class="goal-item">✅ Completing Goals</div>
+                    <div class="goal-item">💪 Jump Over Fumbling</div>
+                </div>
+                
+                <button class="btn" onclick="startGame()">🎯 Start Achievement Quest</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <h1 class="title">🦕 Collect Goals to Vote for Hansika! 🦕</h1>
+            <div class="game-container">
+                <div class="stats-container">
+                    <div class="stat-item">Time: <span id="timer">0</span>s</div>
+                    <div class="stat-item">Coins: <span id="coins-collected">0</span>/5</div>
+                    <div class="stat-item">Lives: <span id="lives">3</span> ❤️</div>
+                </div>
+                
+                <div class="jump-instruction">Press SPACEBAR or Click to Jump! 🚀</div>
+                <div id="gameArea">
+                    <div class="ground"></div>
+                    <div id="dino">🦕</div>
+                </div>
+                <div id="game-status" style="color: #e84393; font-weight: 600; font-size: 1.2rem;"></div>
+            </div>
+            
+            <div class="achievements-list">
+                <h3 style="color: #2d3436; margin-bottom: 15px;">🏆 Achievement Progress:</h3>
+                <div id="achievements-container"></div>
+            </div>
+        </div>
+
+        <!-- Vote Screen -->
+        <div id="vote-screen" class="hidden">
+            <div class="thank-you">
+                <h1 style="font-family: 'Fredoka One', cursive; margin-bottom: 20px;">🎊 ALL ACHIEVEMENTS COMPLETE! 🎊</h1>
+                <h2 style="font-size: 2.5rem; margin: 20px 0;">🗳️ VOTE HANSIKA! 🗳️</h2>
+                <p style="font-size: 1.3rem; margin: 20px 0;">You've successfully mastered all 5 achievements!</p>
+                <div style="font-size: 1.2rem; margin: 25px 0; line-height: 1.8;">
+                    🗣️ Monthly Vcharcha's ✅<br>
+                    🎯 Active Participation ✅<br>
+                    💡 Tackling Deepa Mam ✅<br>
+                    ✅ Completing Goals ✅<br>
+                    💪 Jump Over Fumbling ✅
+                </div>
+                <div style="font-size: 2.5rem; margin: 30px 0;">🎉🏆 HANSIKA FOR THE WIN! 🏆🎉</div>
+                <button class="btn" onclick="restartGame()" style="background: rgba(255,255,255,0.2); border: 2px solid white; font-size: 1.1rem; padding: 15px 30px;">🔄 Play Again</button>
+            </div>
+        </div>
+
+        <!-- Thank You Screen -->
+        <div id="thank-you-screen" class="hidden">
+            <!-- This screen is no longer used -->
+        </div>
+    </div>
+
+    <!-- Vote Popup -->
+    <div id="vote-popup" class="hidden">
+        <div class="overlay" onclick="closeVotePopup()"></div>
+        <div class="vote-popup">
+            <h2 style="font-family: 'Fredoka One', cursive; margin-bottom: 20px;">🗳️ VOTE HANSIKA! 🗳️</h2>
+            <p style="font-size: 1.2rem; margin: 15px 0;">You've collected enough achievements!</p>
+            <p style="font-size: 1rem; margin: 15px 0;">Ready to cast your vote?</p>
+            <div style="margin: 20px 0;">
+                <button class="btn" onclick="proceedToVote()" style="background: linear-gradient(45deg, #e84393, #fd79a8); margin: 5px;">🗳️ YES, VOTE NOW!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const achievements = [
+            { id: 'vcharcha', name: 'Monthly Vcharcha\'s', emoji: '🗣️', collected: false },
+            { id: 'participation', name: 'Active Participation', emoji: '🎯', collected: false },
+            { id: 'deepa', name: 'Tackling Deepa Mam', emoji: '💡', collected: false },
+            { id: 'goals', name: 'Completing Goals', emoji: '✅', collected: false },
+            { id: 'fumbling', name: 'Jump Over Fumbling', emoji: '💪', collected: false }
+        ];
+
+        let gameActive = false;
+        let isJumping = false;
+        let gameTime = 0;
+        let gameTimer;
+        let spawnTimer;
+        let coinsCollected = 0;
+        let lives = 3;
+        let elementCounter = 0;
+        let dino = document.getElementById('dino');
+        let gameArea = document.getElementById('gameArea');
+        let timerDisplay = document.getElementById('timer');
+        let coinsDisplay = document.getElementById('coins-collected');
+        let livesDisplay = document.getElementById('lives');
+        
+        function initializeAchievements() {
+            const container = document.getElementById('achievements-container');
+            container.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                const item = document.createElement('div');
+                item.className = 'achievement-item pending';
+                item.id = `achievement-${achievement.id}`;
+                item.innerHTML = `
+                    <div style="margin-right: 15px; font-size: 1.5rem;">${achievement.emoji}</div>
+                    <div>
+                        <strong>${achievement.name}</strong>
+                        <div style="font-size: 0.9rem; color: #666;">Not collected yet</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        function startGame() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            gameActive = true;
+            gameTime = 0;
+            isJumping = false;
+            coinsCollected = 0;
+            lives = 3;
+            elementCounter = 0;
+            
+            // Reset achievements
+            achievements.forEach(achievement => achievement.collected = false);
+            initializeAchievements();
+            updateUI();
+            
+            // Reset dino position
+            dino.style.bottom = '20px';
+            
+            // Clear any existing elements
+            document.querySelectorAll('.obstacle, .coin').forEach(el => el.remove());
+            
+            // Start game timer
+            gameTimer = setInterval(() => {
+                gameTime++;
+                timerDisplay.textContent = gameTime;
+            }, 1000);
+            
+            // Start spawning elements
+            spawnTimer = setInterval(spawnElement, 2500);
+            
+            // Initial spawn
+            setTimeout(spawnElement, 1000);
+        }
+        
+        function spawnElement() {
+            if (!gameActive) return;
+            
+            elementCounter++;
+            
+            // Check if all achievements are collected
+            const availableAchievements = achievements.filter(a => !a.collected);
+            
+            if (availableAchievements.length > 0) {
+                // Still have achievements to collect - prioritize coins
+                const shouldSpawnCoin = Math.random() < 0.8; // 80% chance for coins
+                
+                if (shouldSpawnCoin) {
+                    spawnCoin();
+                } else {
+                    spawnObstacle();
+                }
+            } else {
+                // All achievements collected - stop spawning elements or only spawn obstacles
+                return; // Stop spawning entirely once all achievements are collected
+            }
+        }
+        
+        function spawnCoin() {
+            // Only spawn coins for achievements that haven't been collected
+            const availableAchievements = achievements.filter(a => !a.collected);
+            if (availableAchievements.length === 0) return; // No more coins to spawn
+            
+            const coin = document.createElement('div');
+            coin.className = 'coin moving-element';
+            coin.style.right = '-50px';
+            coin.style.bottom = Math.random() < 0.5 ? '60px' : '120px'; // Different heights
+            
+            // Assign specific achievement (always from available ones)
+            const achievement = availableAchievements[Math.floor(Math.random() * availableAchievements.length)];
+            coin.textContent = achievement.emoji;
+            coin.dataset.achievementId = achievement.id;
+            
+            gameArea.appendChild(coin);
+            
+            // Remove coin after animation
+            setTimeout(() => {
+                if (coin.parentNode) {
+                    coin.remove();
+                }
+            }, 4500);
+        }
+        
+        function spawnObstacle() {
+            const obstacle = document.createElement('div');
+            obstacle.className = 'obstacle moving-element';
+            obstacle.style.right = '-50px';
+            obstacle.style.bottom = '20px';
+            
+            const obstacles = ['🌵', '🪨', '🦴', '💥'];
+            obstacle.textContent = obstacles[Math.floor(Math.random() * obstacles.length)];
+            
+            gameArea.appendChild(obstacle);
+            
+            // Remove obstacle after animation
+            setTimeout(() => {
+                if (obstacle.parentNode) {
+                    obstacle.remove();
+                }
+            }, 4500);
+        }
+        
+        function jump() {
+            if (isJumping || !gameActive) return;
+            
+            isJumping = true;
+            dino.style.bottom = '120px';
+            
+            setTimeout(() => {
+                dino.style.bottom = '20px';
+                setTimeout(() => {
+                    isJumping = false;
+                }, 300);
+            }, 500);
+        }
+        
+        function updateUI() {
+            coinsDisplay.textContent = coinsCollected;
+            livesDisplay.textContent = lives;
+        }
+        
+        function collectCoin(coin) {
+            const achievementId = coin.dataset.achievementId;
+            
+            if (achievementId) {
+                const achievement = achievements.find(a => a.id === achievementId);
+                if (achievement && !achievement.collected) {
+                    achievement.collected = true;
+                    coinsCollected++;
+                    
+                    // Update achievement display
+                    const achievementEl = document.getElementById(`achievement-${achievementId}`);
+                    achievementEl.className = 'achievement-item collected';
+                    achievementEl.innerHTML = `
+                        <div style="margin-right: 15px; font-size: 1.5rem;">${achievement.emoji}</div>
+                        <div>
+                            <strong>${achievement.name}</strong>
+                            <div style="font-size: 0.9rem; color: #00b894;">✅ Collected!</div>
+                        </div>
+                    `;
+                    
+                    // Show progress message
+                    document.getElementById('game-status').innerHTML = `🎉 Achievement Unlocked: ${achievement.name}! (${coinsCollected}/5)`;
+                    setTimeout(() => {
+                        document.getElementById('game-status').innerHTML = '';
+                    }, 3000);
+                }
+            }
+            
+            // Coin collection animation
+            coin.classList.add('coin-collected');
+            setTimeout(() => coin.remove(), 500);
+            
+            updateUI();
+            
+            // Check if ALL achievements collected (must be exactly 5)
+            if (coinsCollected >= 5) {
+                setTimeout(showVotePopup, 1000);
+            }
+        }
+        
+        function showVotePopup() {
+            // Pause the game when showing vote popup
+            gameActive = false;
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            
+            document.getElementById('vote-popup').classList.remove('hidden');
+        }
+        
+        function closeVotePopup() {
+            document.getElementById('vote-popup').classList.add('hidden');
+        }
+        
+        function proceedToVote() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            
+            document.getElementById('vote-popup').classList.add('hidden');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('vote-screen').classList.remove('hidden');
+        }
+        
+        function checkCollisions() {
+            if (!gameActive) return;
+            
+            const dinoRect = dino.getBoundingClientRect();
+            const gameRect = gameArea.getBoundingClientRect();
+            
+            // Check coin collisions
+            document.querySelectorAll('.coin').forEach(coin => {
+                const coinRect = coin.getBoundingClientRect();
+                
+                if (coinRect.right > dinoRect.left && 
+                    coinRect.left < dinoRect.right && 
+                    coinRect.bottom > dinoRect.top && 
+                    coinRect.top < dinoRect.bottom) {
+                    collectCoin(coin);
+                }
+            });
+            
+            // Check obstacle collisions
+            document.querySelectorAll('.obstacle').forEach(obstacle => {
+                const obstacleRect = obstacle.getBoundingClientRect();
+                
+                if (obstacleRect.right > dinoRect.left && 
+                    obstacleRect.left < dinoRect.right && 
+                    obstacleRect.bottom > dinoRect.top && 
+                    obstacleRect.top < dinoRect.bottom) {
+                    hitObstacle(obstacle);
+                }
+            });
+        }
+        
+        function hitObstacle(obstacle) {
+            lives--;
+            updateUI();
+            
+            // Remove the obstacle that was hit
+            obstacle.remove();
+            
+            // Flash effect
+            dino.style.filter = 'brightness(0.5)';
+            setTimeout(() => {
+                dino.style.filter = 'brightness(1)';
+            }, 200);
+            
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                document.getElementById('game-status').innerHTML = `💥 Hit obstacle! ${lives} lives remaining!`;
+                setTimeout(() => {
+                    document.getElementById('game-status').innerHTML = '';
+                }, 2000);
+            }
+        }
+        
+        function gameOver() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            clearInterval(spawnTimer);
+            
+            document.getElementById('game-status').innerHTML = '💀 Game Over! Try again to collect more achievements! 💀';
+            
+            setTimeout(() => {
+                document.getElementById('game-screen').classList.add('hidden');
+                document.getElementById('welcome-screen').classList.remove('hidden');
+            }, 3000);
+        }
+        
+        // Run collision detection
+        setInterval(checkCollisions, 50);
+        
+        // Event listeners for jumping
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                jump();
+            }
+        });
+        
+        gameArea.addEventListener('click', jump);
+        
+        function restartGame() {
+            // Reset everything
+            gameActive = false;
+            isJumping = false;
+            gameTime = 0;
+            coinsCollected = 0;
+            lives = 3;
+            
+            // Clear game area
+            document.querySelectorAll('.obstacle, .coin').forEach(el => el.remove());
+            
+            // Show welcome screen
+            document.getElementById('vote-screen').classList.add('hidden');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+        
+        // Initialize achievements display on page load
+        document.addEventListener('DOMContentLoaded', initializeAchievements);
+    </script>
+</body>
+</html>
